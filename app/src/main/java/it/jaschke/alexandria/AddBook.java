@@ -95,11 +95,16 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     return;
                 }
                 //Once we have an ISBN, start a book intent
-                Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean);
-                bookIntent.setAction(BookService.FETCH_BOOK);
-                getActivity().startService(bookIntent);
-                AddBook.this.restartLoader();
+                if(checkNetworkConnection()){
+                    Intent bookIntent = new Intent(getActivity(), BookService.class);
+                    bookIntent.putExtra(BookService.EAN, ean);
+                    bookIntent.setAction(BookService.FETCH_BOOK);
+                    getActivity().startService(bookIntent);
+                    AddBook.this.restartLoader();
+                } else {
+                    Toast.makeText(getContext(), "No network found", Toast.LENGTH_LONG).show();
+                }
+
 
 
             }
@@ -115,7 +120,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 scanIntegrator.setPrompt("Scan a barcode");
                 scanIntegrator.initiateScan();
 
-                
+
 
             }
         });
@@ -155,27 +160,49 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         //                getParentFragment().onActivityResult(requestCode, resultCode, intent);
 
-
         super.onActivityResult(requestCode, resultCode, intent);
-        Log.i("result", "in AddBook onActivity Result");
-        //retrieve scan result
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanningResult != null) {
-            //we have a result
-            String scanContent = scanningResult.getContents();
-            String scanFormat = scanningResult.getFormatName();
+//        Log.i("result", "in AddBook onActivity Result");
+//        //retrieve scan result
+//        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+//        if (scanningResult != null) {
+//            //we have a result
+//            String scanContent = scanningResult.getContents();
+//            String scanFormat = scanningResult.getFormatName();
+////            formatTxt.setText("FORMAT: " + scanFormat);
+////            contentTxt.setText("CONTENT: " + scanContent);
+//            ean.setText(scanContent);
+//            Log.i("FORMAT from fragment ", scanFormat);
+//            Log.i("CONTENT from fragment", scanContent);
+//            Log.i("xZing", "contents: from fragment "+scanContent+" format: "+scanFormat);
+//
+//            Toast.makeText(getActivity(), "FORMAT " + scanFormat + " CONTENT " + scanContent, Toast.LENGTH_LONG).show();
+//        }else{
+//            Toast toast = Toast.makeText(getActivity(),
+//                    "No scan data received!", Toast.LENGTH_SHORT);
+//            toast.show();
+//        }
+
+        if(checkNetworkConnection()){
+            IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+            if (scanningResult != null) {
+                //we have a result
+                String scanContent = scanningResult.getContents();
+                String scanFormat = scanningResult.getFormatName();
 //            formatTxt.setText("FORMAT: " + scanFormat);
 //            contentTxt.setText("CONTENT: " + scanContent);
-            ean.setText(scanContent);
-            Log.i("FORMAT from fragment ", scanFormat);
-            Log.i("CONTENT from fragment", scanContent);
-            Log.i("xZing", "contents: from fragment "+scanContent+" format: "+scanFormat);
+                ean.setText(scanContent);
+                Log.i("FORMAT from fragment ", scanFormat);
+                Log.i("CONTENT from fragment", scanContent);
+                Log.i("xZing", "contents: from fragment "+scanContent+" format: "+scanFormat);
 
-            Toast.makeText(getActivity(), "FORMAT " + scanFormat + " CONTENT " + scanContent, Toast.LENGTH_LONG).show();
-        }else{
-            Toast toast = Toast.makeText(getActivity(),
-                    "No scan data received!", Toast.LENGTH_SHORT);
-            toast.show();
+                Toast.makeText(getActivity(), "FORMAT " + scanFormat + " CONTENT " + scanContent, Toast.LENGTH_LONG).show();
+            }else{
+                Toast toast = Toast.makeText(getActivity(),
+                        "No scan data received!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        } else {
+            Toast.makeText(getContext(), "No network found", Toast.LENGTH_LONG).show();
         }
     }
 
