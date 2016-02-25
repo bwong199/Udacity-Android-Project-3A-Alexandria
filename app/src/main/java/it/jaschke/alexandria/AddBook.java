@@ -32,6 +32,9 @@ import it.jaschke.alexandria.services.DownloadImage;
 
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+
+
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
     private final int LOADER_ID = 1;
@@ -106,13 +109,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             @Override
             public void onClick(View v) {
 
-                IntentIntegrator scanIntegrator = new IntentIntegrator(getActivity());
+                IntentIntegrator scanIntegrator =  IntentIntegrator.forSupportFragment(AddBook.this);
                 scanIntegrator.setBeepEnabled(true);
                 scanIntegrator.setBarcodeImageEnabled(true);
                 scanIntegrator.setPrompt("Scan a barcode");
                 scanIntegrator.initiateScan();
 
-
+                
 
             }
         });
@@ -148,18 +151,25 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
 
+
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        //                getParentFragment().onActivityResult(requestCode, resultCode, intent);
+
+
+        super.onActivityResult(requestCode, resultCode, intent);
+        Log.i("result", "in AddBook onActivity Result");
         //retrieve scan result
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanningResult != null) {
             //we have a result
             String scanContent = scanningResult.getContents();
             String scanFormat = scanningResult.getFormatName();
-            formatTxt.setText("FORMAT: " + scanFormat);
-            contentTxt.setText("CONTENT: " + scanContent);
-            Log.i("FORMAT ", scanFormat);
-            Log.i("CONTENT", scanContent);
-            Log.i("xZing", "contents: "+scanContent+" format: "+scanFormat);
+//            formatTxt.setText("FORMAT: " + scanFormat);
+//            contentTxt.setText("CONTENT: " + scanContent);
+            ean.setText(scanContent);
+            Log.i("FORMAT from fragment ", scanFormat);
+            Log.i("CONTENT from fragment", scanContent);
+            Log.i("xZing", "contents: from fragment "+scanContent+" format: "+scanFormat);
 
             Toast.makeText(getActivity(), "FORMAT " + scanFormat + " CONTENT " + scanContent, Toast.LENGTH_LONG).show();
         }else{
